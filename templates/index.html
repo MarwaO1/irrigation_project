@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+    <title>Irrigation Management</title>
+</head>
+<body>
+    <form id="msform" enctype="multipart/form-data">
+        <fieldset>
+            <h2 class="fs-title">Irrigation Water Management</h2>
+            <br>
+            <label>Enter the year</label> <br><br>
+            <input type="text" name="year" id="year" placeholder="" />
+            <label>Enter the number of days of the season</label> <br><br>
+            <input type="text" name="days" id="days" placeholder="" />
+            <label>Enter the average dew point of this season</label> <br><br>
+            <input type="text" name="dew_point" id="dew_point" placeholder="" />
+            <label>Enter the actual yield of the season</label> <br><br>
+            <input type="text" name="yield" id="yield" placeholder="" />
+            <label>Enter the water content of the first day of the season</label> <br><br>
+            <input type="text" name="water_content" id="water_content" placeholder="" /><br><br>
+            <label>Enter The Values of ETC</label> <br>
+            <input type="file" name="ETC" id="etc_file" placeholder="" /><br><br>
+            <button type="button" class="btn btn-warning" onclick="submitForm()">Calculate</button>
+        </fieldset>
+    </form>
+    <output id="results"></output>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function submitForm() {
+            const formData = new FormData();
+            formData.append('year', document.getElementById('year').value);
+            formData.append('days', document.getElementById('days').value);
+            formData.append('dew_point', document.getElementById('dew_point').value);
+            formData.append('yield', document.getElementById('yield').value);
+            formData.append('water_content', document.getElementById('water_content').value);
+            formData.append('etc_file', document.getElementById('etc_file').files[0]);
+
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('results').innerText = `Optimal Z: ${data.optimal_Z}\nOptimal Y: ${data.optimal_y}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('results').innerText = `An error occurred: ${error.message}`;
+            });
+        }
+    </script>
+</body>
+</html>
